@@ -108,7 +108,7 @@ y_train = pickle.load(open('data/y_train.pkl','rb'))
 X_test_tfidf = pickle.load(open('data/X_test.pkl', 'rb'))
 y_test = pickle.load(open('data/y_test.pkl', 'rb'))
 
-trainModel = train_model(linear_model.LinearRegression(), X_train_tfidf, y_train, X_test_tfidf, y_test, is_neuralnet=False)
+trainModel = train_model(svm.LinearSVC(), X_train_tfidf, y_train, X_test_tfidf, y_test, is_neuralnet=False)
 
 
 
