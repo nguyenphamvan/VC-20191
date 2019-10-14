@@ -120,6 +120,8 @@ W = np.random.randn(d, C)
 X_train_new = X_train_tfidf.toarray()
 X_test_new = X_test_tfidf.toarray()
 
+print(X_train_new.shape)
+
 # sub 1 , label start with label is 0
 y_train = y_train - 1
 y_test = y_test - 1
