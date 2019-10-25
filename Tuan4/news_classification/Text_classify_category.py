@@ -86,60 +86,58 @@ def train_model_with_sklearn(classifier, X_data, y_data, X_test, y_test, is_neur
 
     classifier.fit(X_train, y_train)
 
-    train_predictions = classifier.predict(X_train)
-    val_predictions = classifier.predict(X_val)
-    test_predictions = classifier.predict(X_test)
+    y_train_predictions = classifier.predict(X_train)
+    y_val_predictions = classifier.predict(X_val)
+    y_test_predictions = classifier.predict(X_test)
 
-    # print("train accuracy: ", metrics.accuracy_score(train_predictions, y_train))
-    # print("Validation accuracy: ", metrics.accuracy_score(val_predictions, y_val))
-    # print("Test accuracy with sklearn : ", metrics.accuracy_score(test_predictions, y_test))
-    print("classification_report \n: ", metrics.classification_report(y_test, test_predictions))
+    # print("train accuracy: ", metrics.accuracy_score(y_train_predictions, y_train))
+    # print("Validation accuracy: ", metrics.accuracy_score(y_val_predictions, y_val))
+    # print("Test accuracy with sklearn : ", metrics.accuracy_score(y_test_predictions, y_test))
+    print("classification_report \n: ", metrics.classification_report(y_test, y_test_predictions))
+    return metrics.confusion_matrix(y_test, y_test_predictions)
 
 def main():
-    X_train_tfidf = pickle.load(open('data/X_train.pkl', 'rb'))
-    y_train = pickle.load(open('data/y_train.pkl','rb'))
+    # X_data, y_data = read_data_csv('/home/nguyenpham/Desktop/card11_alpha_uni_short - card11_alpha_uni_short.csv')
+    # y_data = [str(label) for label in y_data]
+    #
+    # X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, test_size=0.3, random_state=42)
+    #
+    # X_train_tfidf , X_test_tfidf= featureExtraction(X_train, X_test)
+    # X_train_tfidf = X_train_tfidf.toarray()
+    # X_test_tfidf = X_test_tfidf.toarray()
 
-    X_test_tfidf = pickle.load(open('data/X_test.pkl', 'rb'))
-    y_test = pickle.load(open('data/y_test.pkl', 'rb'))
+    # pickle.dump(X_train_tfidf, open('data_new/X_train.pkl', 'wb'))
+    # pickle.dump(y_train, open('data_new/y_train.pkl', 'wb'))
+    #
+    # pickle.dump(X_test_tfidf, open('data_new/X_test.pkl', 'wb'))
+    # pickle.dump(y_test, open('data_new/y_test.pkl', 'wb'))
 
-    N , C, d = X_train_tfidf.shape[0],len(set(y_train)), X_train_tfidf.shape[1]
-    reg = 0.1
-    W = np.random.randn(d, C)
-    X_train_tfidf = X_train_tfidf.toarray()
-    X_test_tfidf = X_test_tfidf.toarray()
+    X_train_tfidf = pickle.load(open('data_new/X_train.pkl', 'rb'))
+    y_train = pickle.load(open('data_new/y_train.pkl','rb'))
 
-    # sub 1 , label start with label is 0
-    y_train = y_train - 1
-    y_test = y_test - 1
+    X_test_tfidf = pickle.load(open('data_new/X_test.pkl', 'rb'))
+    y_test = pickle.load(open('data_new/y_test.pkl', 'rb'))
 
-    # model_1 = model_with_svm_naive(X_train_tfidf.T, y_train, X_test_tfidf.T, y_test, W)
-    # model_2 = model_svm_GD_vectorized(X_train_tfidf.T, y_train, X_test_tfidf.T, y_test, W)
-    model_3 = train_model_with_sklearn(svm.LinearSVC(penalty='l2', dual=False,  C=2.0,
-                                       tol=0.00001), X_train_tfidf, y_train, X_test_tfidf, y_test, is_neuralnet=False)
-
-# X_data, y_data = read_data_csv('/home/nguyenpham/Desktop/card11_alpha_uni_short - card11_alpha_uni_short.csv')
-# y_data = [str(label) for label in y_data]
-#
-# X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, test_size=0.3, random_state=42)
-#
-# X_train_tfidf , X_test_tfidf= featureExtraction(X_train, X_test)
-# X_train_tfidf = X_train_tfidf.toarray()
-# X_test_tfidf = X_test_tfidf.toarray()
-
-# pickle.dump(X_train_tfidf, open('data_new/X_train.pkl', 'wb'))
-# pickle.dump(y_train, open('data_new/y_train.pkl', 'wb'))
-#
-# pickle.dump(X_test_tfidf, open('data_new/X_test.pkl', 'wb'))
-# pickle.dump(y_test, open('data_new/y_test.pkl', 'wb'))
-
-X_train_tfidf = pickle.load(open('data_new/X_train.pkl', 'rb'))
-print(len(X_train_tfidf))
-y_train = pickle.load(open('data_new/y_train.pkl','rb'))
-
-X_test_tfidf = pickle.load(open('data_new/X_test.pkl', 'rb'))
-y_test = pickle.load(open('data_new/y_test.pkl', 'rb'))
-
-model = train_model_with_sklearn(naive_bayes.BernoulliNB()
+    model = train_model_with_sklearn(svm.LinearSVC(penalty='l2',C=0.4 ,loss='squared_hinge', tol=0.001)
                                  , X_train_tfidf, y_train, X_test_tfidf, y_test, is_neuralnet=False)
 
+    mini_confusion_matrix = dict()
+    for i in range(model.shape[0]):
+        row= list(model[i])
+        dict_row = dict()
+        for j in range(len(row)):
+            if row[j] != 0 :
+                dict_row[j] = row[j]
+        mini_confusion_matrix[i] = dict_row
+    for key, value in mini_confusion_matrix.items():
+        print("%s : %s" %(key, value))
+    print("\nnumber of labels for class: ")
+    for key, value in mini_confusion_matrix.items():
+        number_of_labels = sum(list(value.values()))
+        print("class %s : %s" %(key, number_of_labels))
+
+
+
+if __name__ == '__main__':
+    main()
 
